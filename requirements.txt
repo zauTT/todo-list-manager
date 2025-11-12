@@ -1,0 +1,5 @@
+# CLI framework
+click
+
+# Pretty table formatting
+tabulate
