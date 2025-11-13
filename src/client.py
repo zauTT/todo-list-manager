@@ -3,8 +3,8 @@ from tabulate import tabulate
 from datetime import datetime
 from typing import Optional
 
-from models import Task
-from database import (
+from src.models import Task
+from src.database import (
     add_task,
     get_tasks,
     get_task_by_id,
