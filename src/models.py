@@ -7,7 +7,7 @@ class Task:
     id: int
     title: str
     description: Optional[str]
-    priority: str #high, medium, low
+    priority: str  # high, medium, low
     due_date: Optional[str]
     completed: bool
     completed_at: Optional[str]
@@ -30,7 +30,7 @@ class Task:
         if not self.due_date or self.completed:
             return False
 
-        due=datetime.fromisoformat(self.due_date).date()
+        due = datetime.fromisoformat(self.due_date).date()
         return due < datetime.now().date()
 
     def status_text(self) -> str:

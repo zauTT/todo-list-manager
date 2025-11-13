@@ -3,7 +3,8 @@ from tabulate import tabulate
 from datetime import datetime
 from typing import Optional
 
-from src.database import (
+from models import Task
+from database import (
     add_task,
     get_tasks,
     get_task_by_id,
@@ -57,9 +58,9 @@ def list(show_all: bool, priority: Optional[str], sort: str):
         rows = []
 
         for task in tasks:
-            task_id, title, description, priority, due_date, completed, completed_at, created_at = task
+            task_id, title, _description, priority, due_date, completed, _completed_at, created_at = task
 
-            status = '✓ Done' if completed else '○ pending'
+            status = '✓ Done' if completed else '○ Pending'
 
             if due_date and not completed:
                 due = datetime.fromisoformat(due_date).date()
@@ -68,12 +69,12 @@ def list(show_all: bool, priority: Optional[str], sort: str):
                     due_date = f"{due_date} (OVERDUE!)"
 
             rows.append([
-                len(rows) + 1,
+                task_id,
                 title[:30],
                 priority,
                 due_date or '-',
                 status,
-                created_at[:10] 
+                created_at[:10]
             ])
 
         click.echo(tabulate(rows, headers=headers, tablefmt='grid'))
@@ -148,7 +149,7 @@ def delete(task_id: int):
 @click.argument('task_id', type=int)
 @click.option('--title', '-t', help='New task title')
 @click.option('--description', '-d', help='New task description')
-@click.option('--priority', '-p', type=click.Choice(['high','medium','low']), help='New task priority')
+@click.option('--priority', '-p', type=click.Choice(['high', 'medium', 'low']), help='New task priority')
 @click.option('--due', help='New due date in YYYY-MM-DD format')
 def update(task_id: int, title: Optional[str], description: Optional[str], priority: Optional[str], due: Optional[str]):
     try:
@@ -188,19 +189,22 @@ def show(task_id: int):
             click.echo(f"✗ Task {task_id} not found.", err=True)
             return
 
-        task_id, title, description, priority, due_date, completed, completed_at, created_at = task
+        task = Task.from_tuple(task)
 
         click.echo(f"\n{'=' * 50}")
-        click.echo(f"Task ID: {task_id}")
-        click.echo(f"Title: {title}")
-        click.echo(f"Description: {description or 'No description'}")
-        click.echo(f"Priority: {priority}")
-        click.echo(f"Due Date: {due_date or 'Not set'}")
-        click.echo(f"Status: {'✓ Completed' if completed else '○ Pending'}")
+        click.echo(f"Task ID: {task.id}")
+        click.echo(f"Title: {task.title}")
+        click.echo(f"Description: {task.description or 'No description'}")
+        click.echo(f"Priority: {task.priority}")
+        click.echo(f"Due Date: {task.due_date or 'Not set'}")
+        click.echo(f"Status: {task.status_text()}")
 
-        if completed and completed_at:
-            click.echo(f"Completed At: {completed_at}")
-            click.echo(f"Created At: {created_at}")
+        if task.is_overdue():
+            click.echo("⚠ This task is overdue!")
+
+        if task.completed and task.completed_at:
+            click.echo(f"Completed At: {task.completed_at}")
+        click.echo(f"Created At: {task.created_at}")
         click.echo(f"{'='*50}\n")
 
     except Exception as e:

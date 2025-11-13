@@ -54,7 +54,7 @@ def get_tasks(show_completed: bool = False, priority_filter: Optional[str] = Non
         query += " AND priority = ?"
         params.append(priority_filter)
 
-    if sort_by =='due_date':
+    if sort_by == 'due_date':
         query += " ORDER BY due_date is NULL, due_date ASC"
     elif sort_by == 'priority':
         query += " ORDER BY CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END"
